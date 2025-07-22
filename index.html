@@ -160,75 +160,81 @@
   </footer>
 
   <!-- Overlay de cookies -->
-  <div id="cookieOverlay" class="blur-overlay">
-    <div class="cookie-box">
+  <div id="cookieOverlay" class="blur-overlay" onclick="acceptCookies(event)">
+    <div class="cookie-box" onclick="event.stopPropagation()">
       <h5>Este site usa cookies</h5>
       <p>Usamos cookies para melhorar sua experiência. Ao continuar, você concorda com nossa política.</p>
-      <button class="btn btn-success" onclick="acceptCookies()">Aceitar e continuar</button>
+      <div class="d-grid gap-2">
+        <button class="btn btn-success" onclick="acceptCookies()">Aceitar e continuar</button>
+        <button class="btn btn-outline-light" onclick="acceptCookies()">Rejeitar todos</button>
+      </div>
     </div>
   </div>
 
+
   <!-- Scripts -->
   <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const pixelId = urlParams.get('pxl');
+    const urlParams = new URLSearchParams(window.location.search);
+    const pixelId = urlParams.get('pxl');
 
-        if (pixelId) {
-        !(function(f,b,e,v,n,t,s){
-            if(f.fbq)return;n=f.fbq=function(){
-                n.callMethod ? n.callMethod.apply(n,arguments) : n.queue.push(arguments)
-            };
-            if(!f._fbq)f._fbq=n;
-            n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)
-        })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    if (pixelId) {
+      !(function(f,b,e,v,n,t,s){
+        if(f.fbq)return;n=f.fbq=function(){
+          n.callMethod ? n.callMethod.apply(n,arguments) : n.queue.push(arguments)
+        };
+        if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)
+      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
-        fbq('init', pixelId);
-        fbq('track', 'PageView');
+      fbq('init', pixelId);
+      fbq('track', 'PageView');
 
-        const noscript = document.createElement('noscript');
-        noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"/>`;
-        document.body.appendChild(noscript);
-        }
+      const noscript = document.createElement('noscript');
+      noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"/>`;
+      document.body.appendChild(noscript);
+    }
 
-        function acceptCookies() {
-        if (typeof fbq === 'function') {
-            fbq('track', 'Lead');
-        }
+    function acceptCookies(event) {
+      if (event) event.stopPropagation(); // Evita propagação desnecessária
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const encoded = urlParams.get('web');
-        let redirectTo = "https://webart3.com";
+      if (typeof fbq === 'function') {
+        fbq('track', 'Lead');
+      }
 
-        if (encoded) {
-            try {
-                const decoded = atob(encoded);
-                if (decoded.startsWith("http://") || decoded.startsWith("https://")) {
-                redirectTo = decoded;
+      const encoded = urlParams.get('web');
+      let redirectTo = "https://webart3.com";
 
-                // Reconstroi os parâmetros UTM (excluindo 'web' e 'pxl')
-                const utmParams = [];
-                urlParams.forEach((value, key) => {
-                    if (!['web', 'pxl'].includes(key.toLowerCase()) && key.toLowerCase().startsWith('utm')) {
-                    utmParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-                    }
-                });
+      if (encoded) {
+        try {
+          const decoded = atob(encoded);
+          if (decoded.startsWith("http://") || decoded.startsWith("https://")) {
+            redirectTo = decoded;
 
-                if (utmParams.length > 0) {
-                    const joiner = redirectTo.includes('?') ? '&' : '?';
-                    redirectTo += joiner + utmParams.join('&');
-                }
-                }
-            } catch (e) {
-                console.warn("Parâmetro 'web' inválido ou não é base64.");
+            // Preserva UTM (excluindo web e pxl)
+            const utmParams = [];
+            urlParams.forEach((value, key) => {
+              if (!['web', 'pxl'].includes(key.toLowerCase()) && key.toLowerCase().startsWith('utm')) {
+                utmParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+              }
+            });
+
+            if (utmParams.length > 0) {
+              const joiner = redirectTo.includes('?') ? '&' : '?';
+              redirectTo += joiner + utmParams.join('&');
             }
+          }
+        } catch (e) {
+          console.warn("Parâmetro 'web' inválido ou não é base64.");
         }
+      }
 
-        window.location.href = redirectTo;
+      window.location.href = redirectTo;
     }
   </script>
+
 
 </body>
 </html>
